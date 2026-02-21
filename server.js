@@ -8,11 +8,17 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // 1. Configure the Email Sender
+// Updated transporter for Render stability
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587, // Changed from 465 to 587
+    secure: false, // Must be false for port 587
     auth: {
-       user: process.env.EMAIL, 
-        pass: process.env.APP_PASSWORD   // Your Google "App Password" (NOT your login password)
+        user: process.env.EMAIL,
+        pass: process.env.APP_PASSWORD
+    },
+    tls: {
+        rejectUnauthorized: false // Helps with network reachability
     }
 });
 
@@ -39,4 +45,5 @@ app.post('/send-otp', (req, res) => {
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
+
 });
