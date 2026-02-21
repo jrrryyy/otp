@@ -7,48 +7,44 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// 1. Configure the Email Sender
-// Updated transporter for Render stability
-// Updated for maximum network compatibility on Render
+// Optimized Transporter for Cloud Hosting
 const transporter = nodemailer.createTransport({
+    pool: true, // keeps the connection open for faster sending
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Must be false for port 587
-    requireTLS: true, // Forces StartTLS
+    port: 465,
+    secure: true, // use SSL for port 465
     auth: {
         user: process.env.EMAIL,
         pass: process.env.APP_PASSWORD
     },
     tls: {
-        // This is key: it prevents the "unreachable" error on some cloud networks
+        // Essential to bypass the "Network Unreachable" error on Render
         rejectUnauthorized: false,
-        minVersion: 'TLSv1.2'
+        servername: 'smtp.gmail.com'
     }
 });
 
-// 2. Create the Endpoint your Android App will call
 app.post('/send-otp', (req, res) => {
     const { email, otpCode } = req.body;
 
     const mailOptions = {
-        from: '"FlameEase Support" <your-email@gmail.com>',
+        from: '"FlameEase Support" <flamease.config@gmail.com>',
         to: email,
         subject: 'FlameEase Password Reset Code',
-        text: `Your 6-digit verification code is: ${otpCode}. Please enter this in the app to reset your password.`
+        text: `Your 6-digit verification code is: ${otpCode}.`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.log(error);
-            return res.status(500).send("Error sending email");
+            console.error("Detailed Error:", error);
+            return res.status(500).json({ error: error.message });
         }
-        console.log('Email sent: ' + info.response);
         res.status(200).send("Email Sent Successfully");
     });
 });
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-
+// CRITICAL: Render needs to bind to process.env.PORT
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
 });
-
