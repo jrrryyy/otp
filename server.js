@@ -7,19 +7,20 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Optimized Transporter for Cloud Hosting
+// Transporter with "Pool" enabled for unstable cloud networks
 const transporter = nodemailer.createTransport({
-    pool: true, // keeps the connection open for faster sending
+    pool: true, 
     host: 'smtp.gmail.com',
     port: 465,
-    secure: true, // use SSL for port 465
+    secure: true, // SSL for port 465
     auth: {
         user: process.env.EMAIL,
         pass: process.env.APP_PASSWORD
     },
     tls: {
-        // Essential to bypass the "Network Unreachable" error on Render
+        // These settings are critical to fix the ENETUNREACH error
         rejectUnauthorized: false,
+        minVersion: 'TLSv1.2',
         servername: 'smtp.gmail.com'
     }
 });
@@ -43,8 +44,8 @@ app.post('/send-otp', (req, res) => {
     });
 });
 
-// CRITICAL: Render needs to bind to process.env.PORT
-const PORT = process.env.PORT || 3000;
+// Render dynamic port binding
+const PORT = process.env.PORT || 10000; 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 });
