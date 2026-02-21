@@ -11,8 +11,8 @@ app.use(bodyParser.json());
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'flamease.config@gmail.com', // Your Gmail address
-        pass: 'lwfg hqde kets dpur'   // Your Google "App Password" (NOT your login password)
+       user: process.env.EMAIL, 
+        pass: process.env.APP_PASSWORD   // Your Google "App Password" (NOT your login password)
     }
 });
 
