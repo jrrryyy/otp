@@ -9,16 +9,20 @@ app.use(bodyParser.json());
 
 // 1. Configure the Email Sender
 // Updated transporter for Render stability
+// Updated for maximum network compatibility on Render
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587, // Changed from 465 to 587
+    port: 587,
     secure: false, // Must be false for port 587
+    requireTLS: true, // Forces StartTLS
     auth: {
         user: process.env.EMAIL,
         pass: process.env.APP_PASSWORD
     },
     tls: {
-        rejectUnauthorized: false // Helps with network reachability
+        // This is key: it prevents the "unreachable" error on some cloud networks
+        rejectUnauthorized: false,
+        minVersion: 'TLSv1.2'
     }
 });
 
@@ -47,3 +51,4 @@ app.listen(3000, () => {
     console.log('Server is running on port 3000');
 
 });
+
