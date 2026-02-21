@@ -7,20 +7,22 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Transporter with "Pool" enabled for unstable cloud networks
+// Transporter optimized for cloud network timeouts
 const transporter = nodemailer.createTransport({
-    pool: true, 
+    pool: true, // Keeps connection open for better stability
     host: 'smtp.gmail.com',
     port: 465,
-    secure: true, // SSL for port 465
+    secure: true, 
     auth: {
         user: process.env.EMAIL,
         pass: process.env.APP_PASSWORD
     },
+    // Fixes for the "Connection Timeout" error
+    connectionTimeout: 20000, // 20 seconds
+    greetingTimeout: 20000,
+    socketTimeout: 30000,
     tls: {
-        // These settings are critical to fix the ENETUNREACH error
         rejectUnauthorized: false,
-        minVersion: 'TLSv1.2',
         servername: 'smtp.gmail.com'
     }
 });
